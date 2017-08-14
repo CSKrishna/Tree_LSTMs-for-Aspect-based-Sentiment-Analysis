@@ -20,7 +20,7 @@ We use the [Stanford NLP parser](https://nlp.stanford.edu/software/lex-parser.sh
 
 (100000000000000000 ( ( Not) ( ( bad))))
 
-has one aspect – overall performance  with a corresponding polarity of 'Positive'. This is encoded by the first character in the string. Since there are no other aspects associated with this sentence, the remaining positions in the character string are encoded by ‘0’. These root-labelled parsed instances are stored in the train folder in the train, dev and text files.
+has one aspect – overall performance  with a corresponding polarity of 'Positive'. This is encoded by the first character in the string. Since there are no other aspects associated with this sentence, the remaining positions in the character string are encoded by ‘0’. These root-labelled parsed sentences are stored in the train folder in the train, dev and text files. For loading these are root-labelled tree structures, supporting code has been taken from [CS224D Assignment 3] (http://cs224d.stanford.edu/assignment3/index.html)
 
 ## Implementation Details
 The [code](LSTM_Tree-v2.ipynb) itself is a modified version of [Tree-Structured LSTM](https://github.com/tensorflow/fold/blob/master/tensorflow_fold/g3doc/sentiment.ipynb). It departs from the original code-base in the following ways: 
