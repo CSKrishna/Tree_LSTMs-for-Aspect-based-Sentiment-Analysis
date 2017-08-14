@@ -1,6 +1,6 @@
 # Sentence Level Aspect-Based Sentiment Analysis using Tree-Structured LSTM Networks
 
-In this code base, we implement a [Constituency Tree-LSTM model] (http://alt.qcri.org/semeval2016/task5/index.php?id=data-and-tools) for [sentence level aspect based sentiment analysis (ABSA)] (http://alt.qcri.org/semeval2016/task5/index.php?id=data-and-tools). The training/validation dataset for the model consists of sentences from a domain with a predefined, fixed set of aspects. Each sentence from the training dataset is annotated with the aspect and polarity associated with it. For example, a labelled instance from the Laptop review domain would be:
+In this code base, we implement a [Constituency Tree-LSTM model] (https://nlp.stanford.edu/pubs/tai-socher-manning-acl2015.pdf) for [sentence level aspect based sentiment analysis (ABSA)] (http://alt.qcri.org/semeval2016/task5/index.php?id=data-and-tools). The training/validation dataset for the model consists of annotated sentences from a domain with a predefined, fixed set of aspects. Each sentence from the training dataset is annotated with the aspect and polarity associated with it. For example, a labelled instance from the Laptop review domain would be:
 
 <sentence id="B00KMRGF28_381_AH6TXTDWVUNLS:0>
 
