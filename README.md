@@ -1,5 +1,6 @@
 # Aspect-Based Sentiment Analysis using Tree-Structured LSTMs
 
+## Sentence level Aspect-Based Sentiment Analysis
 In this code base, we implement a [Constituency Tree-LSTM model](https://nlp.stanford.edu/pubs/tai-socher-manning-acl2015.pdf) for [sentence level aspect based sentiment analysis (ABSA)](http://alt.qcri.org/semeval2016/task5/index.php?id=data-and-tools). The training/validation dataset for the model consists of annotated sentences from a domain with a predefined, fixed set of aspects. The annotation for a sentence comprises a list of aspect, polarity tuples. For illustration,  we list a few annotated sentences from the [Laptop review trial dataset](http://alt.qcri.org/semeval2014/task4/data/uploads/laptops-trial.xml):
 
 * Sentence: "The So called laptop runs to Slow and I hate it!" → Annotation: {(LAPTOP#OPERATION_PERFORMANCE, negative), (LAPTOP#GENERAL, negative)}
@@ -9,18 +10,17 @@ In this code base, we implement a [Constituency Tree-LSTM model](https://nlp.sta
 * Sentence: "It is the worst laptop ever" → Annotation: {(LAPTOP#GENERAL, negative)}
 
 The model need to be trained over these annotated sentences so that, for a new sentence, it can
-- Output the list of aspects present in it 
-- Predict the sentiment polarity (negative, positive, mildly negative/positive) associated with it.
+- Output the list of aspects associated with it, and, 
+- for each of the presentaspects, output the corresponding sentiment polarity (negative, positive, mildly negative/positive) 
 
 ## Laptop Review Dataset & Preprocessing
-
 For model training and validation, we use the [Laptop review data set](http://metashare.ilsp.gr:8080/repository/browse/semeval-2014-absa-train-data-v20-annotation-guidelines/683b709298b811e3a0e2842b2b6a04d7c7a19307f18a4940beef6a6143f937f0/). This dataset comprises 3048 sentences extracted from customer reviews of laptops and spans 154 aspects. Out of these, the 17 most frequently occurring aspects account for ~80% of the aspect labels in the dataset. So as a pre-processing step, we collapse the remaining aspects into a miscellaneous category ‘Other’ to bound model complexity and avoid over-fitting. Therefore, in the revised task, the model has to predict the presence/absence of 18 aspects in a sentence.
 
 We use the [Stanford NLP parser](https://nlp.stanford.edu/software/lex-parser.shtml) to generate binary parse trees for each sentence in the training set as part of an offline pre-processing step. The aspect-polarity annotations are encoded as an 18 character string attached to the root node. The position in the 18 character string signifies the aspect, and the character – ‘1’ for positive sentiment, '2' for mildly positive/negative, '3' for negative -  encodes the aspect's polarity with '0' implying the aspect is missing . For instance, 
 
 (100000000000000000 ( ( Not) ( ( bad))))
 
-has one aspect – overall performance – which is encoded by the first character in the string. Since there are no other aspects, the remaining positions are encoded by ‘0’. The labelled instances are stored in the train folder in the train, dev and text files.
+has one aspect – overall performance  with a corresponding polarity of 'Positive'. This is encoded by the first character in the string. Since there are no other aspects associated with this senttence, the remaining positions in the character string are encoded by ‘0’. These root-labelled parsed instances are stored in the train folder in the train, dev and text files.
 
 ## Implementation Details
 The [code](LSTM_Tree-v2.ipynb) itself is a modified version of [Tree-Structured LSTM](https://github.com/tensorflow/fold/blob/master/tensorflow_fold/g3doc/sentiment.ipynb). It departs from the original code-base in the following ways: 
