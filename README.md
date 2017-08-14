@@ -23,19 +23,28 @@ We use the [Stanford NLP parser](https://nlp.stanford.edu/software/lex-parser.sh
 has one aspect – overall performance – which is encoded by the first character in the string. Since there are no other aspects, the remaining positions are encoded by ‘0’. The labelled instances are stored in the train folder in the train, dev and text files.
 
 ## Implementation Details
-The code itself is a modified version of [Tree-Structured LSTM](https://github.com/tensorflow/fold/blob/master/tensorflow_fold/g3doc/sentiment.ipynb). It departs from the original code in two ways: 
+The [code](LSTM_Tree-v2.ipynb) itself is a modified version of [Tree-Structured LSTM](https://github.com/tensorflow/fold/blob/master/tensorflow_fold/g3doc/sentiment.ipynb). It departs from the original code-base in the following ways: 
 
-1.	Multi-aspect labels appended only to the root node: This calls for suitable modifications of the loss function. First, loss is only computed for the root node. Second, the ASBA comprises two tasks – aspect detection and polarity prediction for the present aspects. So it makes sense to create two loss heads for each of the tasks in the final layer of the neural network. For task 1, we compute the loss over 18 softmax units and sum them. Each softmax unit in this layer predicts the presence of the corresponding aspect. The loss for task 1 is the sum over losses from each of these units. Similarly for task 2, we compute loss over another set of 18 softmax units. Here, each softmax unit predicts the sentiment class (positive, negative, mildly positive/mildly negative) for the corresponding prospect. For task 2, loss is computed only if the aspect is present otherwise it is taken to be 0. The final loss for task 2 is the sum over all the 18 softmax units. Thus, the final layer has 36 + 54 units.  The final loss is the weighted sum of these two losses where the weights can be set through cross-validation. A key advantage of this approach is that we can adjust the weights depending on which evaluation metric – F1 score for aspect detection or accuracy score for sentiment polarity prediction – matters more to you. 
+1.	Multi-aspect labels appended only to the root node: For ABSA, all annotations are with respect to the entire sentence and therefore attached to the root node. The remaining nodes of the tree do not contribute to the loss.
 
-2.	Non-training of the word vectors: Since the dataset is limited in size, we avoid backpropagating the error into the word2vecs for each word in leaf node of the parse tree.
+2. Computing loss from two tasks: ASBA comprises two tasks – aspect detection and polarity prediction for the present aspects. So it makes sense to compute a separate loss for each of the tasks and sum them in the final layer of the neural network. For task 1 loss, we compute the loss over 18 softmax units and sum them. Each softmax unit in this layer predicts the presence/absence of the corresponding aspect. For task 2, we compute loss over another set of 18 softmax units and sum them. Here, each softmax unit predicts the sentiment class (positive, negative, mildly positive/mildly negative) for the corresponding aspect. Note that for each of the 18 aspectss, loss is computed only if the aspect is present otherwise it is taken to be 0. The final loss is the weighted sum of these two losses. A key advantage of this approach is that we can adjust the weights depending on which evaluation metric – F1 score for aspect detection or accuracy score for sentiment polarity prediction – matters more to you. 
+
+3.	Non-training of the word vectors: Since the dataset is limited in size, we avoid backpropagating the error into the word2vecs for each word in leaf node of the parse tree.
 
 
 ## Requirements
-We use the Tensorflow Fold library to facilitate dynamic batching of trees. This allows for a more stable estimate of the gradients which in turn enables a larger learning rate. Combined with faster sweeps through epochs, dynamic batching reduces training time. Note that TensorFlow by itself doesn’t allow for batching of variable sized inputs such as trees.
+We use the [Tensorflow Fold](https://github.com/tensorflow/fold) library to facilitate dynamic batching of trees and train more efficiently. Batching allows for a more stable estimate of the gradients which in turn permits training initializaton with a larger learning rate. Combined with faster sweeps through epochs, dynamic batching reduces overall training time. Note that TensorFlow by itself doesn’t allow for batching of variable sized inputs such as trees.
 
 To use TensorFlow Fold, we used Tenforflow 1.0.0  GPU version on Ubuntu 16.04 with Python 3.6.2. We recommend training over a GPU for speed-up.
 
-We use 300 dimensional word2vecs pre-trained on the [Google News](https://github.com/mmihaltz/word2vec-GoogleNews-vectors) corpus as inputs to the leaf nodes. In the current implementation, we store this file in the root folder. After creating a vocabulary over the training, dev and test sets, a word2vec embedding matrix is then created using the Google word2vec file. The out of vocabulary rate for the Latptop training set is ~ 5%. 
+We use 300 dimensional word2vecs pre-trained on the [Google News](https://github.com/mmihaltz/word2vec-GoogleNews-vectors) corpus as inputs to the leaf nodes. In the current implementation, we store this file in the root folder. After creating a vocabulary over the training, dev and test sets, a word2vec embedding matrix is then created using the Google word2vec file. The out of vocabulary rate for the Latptop data-set is ~ 5%. 
+
+Other key requirements/dependancies are:
+
+-Gensim for handling Google News word2vecs
+
+-Numpy
+
 
 ## Results and Evaluation
-For best results, we recommend running the code on a GPU. As part of validation, we track the F1 score for [SamEval](http://alt.qcri.org/semeval2016/task5/index.php?id=data-and-tools) subtask 1 slot 1 and the accuracy score for subtask 1 slot 3. For our model, both the scores are very competitive with the results of the leading teams in SamEval’15 and SamEval’16.
+As part of validation, we track the F1 score for [SamEval](http://alt.qcri.org/semeval2016/task5/index.php?id=data-and-tools) subtask 1 slot 1 and the accuracy score for subtask 1 slot 3. For our model, both the scores are very competitive with the results of the leading teams in SamEval’15 and SamEval’16.
