@@ -2,15 +2,15 @@
 
 In this code base, we implement a [Constituency Tree-LSTM model](https://nlp.stanford.edu/pubs/tai-socher-manning-acl2015.pdf) for [sentence level aspect based sentiment analysis (ABSA)](http://alt.qcri.org/semeval2016/task5/index.php?id=data-and-tools). The training/validation dataset for the model consists of annotated sentences from a domain with a predefined, fixed set of aspects. The annotation for a sentence comprises a list of aspect, polarity tuples. For illustration,  we list a few annotated sentences from the [Laptop review trial dataset](http://alt.qcri.org/semeval2014/task4/data/uploads/laptops-trial.xml):
 
-Sentence: The So called laptop runs to Slow and I hate it! → Annotation: {(LAPTOP#OPERATION_PERFORMANCE, negative), (LAPTOP#GENERAL, negative)}
+* Sentence: "The So called laptop runs to Slow and I hate it!" → Annotation: {(LAPTOP#OPERATION_PERFORMANCE, negative), (LAPTOP#GENERAL, negative)}
 
-Sentence: Do not buy it! → Annotation: {LAPTOP#GENERAL, negative}
+* Sentence: "Do not buy it!" → Annotation: {(LAPTOP#GENERAL, negative)}
 
-Sentence: It is the worst laptop ever → Annotation: {LAPTOP#GENERAL, negative}
+* Sentence: "It is the worst laptop ever" → Annotation: {(LAPTOP#GENERAL, negative)}
 
-The model need to be trained over these annotated sentences so that it can, for a new sentence,
-1. output the list of aspects present in it 
-2. predict the sentiment polarity (negative, positive, mildly negative/positive) associated with it.
+The model need to be trained over these annotated sentences so that, for a new sentence, it can
+- Output the list of aspects present in it 
+- Predict the sentiment polarity (negative, positive, mildly negative/positive) associated with it.
 
 ## Laptop Review Dataset & Preprocessing
 
@@ -25,15 +25,15 @@ has one aspect – overall performance – which is encoded by the first charact
 ## Implementation Details
 The [code](LSTM_Tree-v2.ipynb) itself is a modified version of [Tree-Structured LSTM](https://github.com/tensorflow/fold/blob/master/tensorflow_fold/g3doc/sentiment.ipynb). It departs from the original code-base in the following ways: 
 
-1.	Multi-aspect labels appended only to the root node: For ABSA, all annotations are with respect to the entire sentence and therefore attached to the root node. The remaining nodes of the tree do not contribute to the loss.
+1. Multi-aspect labels appended only to the root node: For ABSA, all annotations are with respect to the entire sentence and therefore attached to the root node. The remaining nodes of the tree do not contribute to the loss.
 
 2. Computing loss from two tasks: ASBA comprises two tasks – aspect detection and polarity prediction for the present aspects. So it makes sense to compute a separate loss for each of the tasks and sum them in the final layer of the neural network. For task 1 loss, we compute the loss over 18 softmax units and sum them. Each softmax unit in this layer predicts the presence/absence of the corresponding aspect. For task 2, we compute loss over another set of 18 softmax units and sum them. Here, each softmax unit predicts the sentiment class (positive, negative, mildly positive/mildly negative) for the corresponding aspect. Note that for each of the 18 aspectss, loss is computed only if the aspect is present otherwise it is taken to be 0. The final loss is the weighted sum of these two losses. A key advantage of this approach is that we can adjust the weights depending on which evaluation metric – F1 score for aspect detection or accuracy score for sentiment polarity prediction – matters more to you. 
 
-3.	Non-training of the word vectors: Since the dataset is limited in size, we avoid backpropagating the error into the word2vecs for each word in leaf node of the parse tree.
+3. Non-training of the word vectors: Since the dataset is limited in size, we avoid backpropagating the error into the word2vecs for each word in leaf node of the parse tree.
 
 
 ## Requirements
-We use the [Tensorflow Fold](https://github.com/tensorflow/fold) library to facilitate dynamic batching of trees and train more efficiently. Batching allows for a more stable estimate of the gradients which in turn permits training initializaton with a larger learning rate. Combined with faster sweeps through epochs, dynamic batching reduces overall training time. Note that TensorFlow by itself doesn’t allow for batching of variable sized inputs such as trees.
+We use the [Tensorflow Fold](https://github.com/tensorflow/fold) library to facilitate dynamic batching and faster training. Note that TensorFlow by itself doesn’t support mini-batching of variable sized inputs such as trees.
 
 To use TensorFlow Fold, we used Tenforflow 1.0.0  GPU version on Ubuntu 16.04 with Python 3.6.2. We recommend training over a GPU for speed-up.
 
@@ -41,7 +41,7 @@ We use 300 dimensional word2vecs pre-trained on the [Google News](https://github
 
 Other key requirements/dependancies are:
 
--Gensim for handling Google News word2vecs
+-Gensim for processing Google News word2vecs and creating the embedding matrix
 
 -Numpy
 
