@@ -1,16 +1,15 @@
-# Sentence Level Aspect-Based Sentiment Analysis using Tree-Structured LSTM Networks
+# Aspect-Based Sentiment Analysis using Tree-Structured LSTMs
 
-In this code base, we implement a [Constituency Tree-LSTM model](https://nlp.stanford.edu/pubs/tai-socher-manning-acl2015.pdf) for [sentence level aspect based sentiment analysis (ABSA)](http://alt.qcri.org/semeval2016/task5/index.php?id=data-and-tools). The training/validation dataset for the model consists of annotated sentences from a domain with a predefined, fixed set of aspects. Each sentence from the training dataset is annotated with the aspect and polarity associated with it. For example, a labelled instance from the Laptop review domain would be:
+In this code base, we implement a [Constituency Tree-LSTM model](https://nlp.stanford.edu/pubs/tai-socher-manning-acl2015.pdf) for [sentence level aspect based sentiment analysis (ABSA)](http://alt.qcri.org/semeval2016/task5/index.php?id=data-and-tools). The training/validation dataset for the model consists of annotated sentences from a domain with a predefined, fixed set of aspects. For illustration,  we list instances of annotated sentences from the [Laptop review trial dataset](http://alt.qcri.org/semeval2014/task4/data/uploads/laptops-trial.xml):
+
+S1: The So called laptop runs to Slow and I hate it! -->  {LAPTOP#OPERATION_PERFORMANCE, negative}, {LAPTOP#GENERAL, negative}
+
+S2: Do not buy it! → {LAPTOP#GENERAL, negative}
+
+S3: It is the worst laptop ever. → {LAPTOP#GENERAL, negative}
 
 
-<text> Fantastic for the price, its a pity keys were not illuminated. </text>
-
-<Opinion category="LAPTOP#PRICE" polarity="positive"/>
-
-<Opinion category="KEYBOARD#DESIGN_FEATURES" polarity="negative"/>
-
-
-The model need to be trained over these annotated sentences so that it can, for a new sentence, 
+The model need to be trained over these annotated sentences so that it can, for a new sentence,
 1. output the list of aspects present in it 
 2. predict the sentiment polarity (negative, positive, mildly negative/positive) associated with it.
 
